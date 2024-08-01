@@ -1,6 +1,5 @@
 package com.e_commerce.E_commerce.services;
 
-import com.e_commerce.E_commerce.entities.Client;
 import com.e_commerce.E_commerce.entities.Product;
 import com.e_commerce.E_commerce.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,28 +10,39 @@ import java.util.Optional;
 
 @Service
 public class ProductService {
+
     @Autowired
     private ProductRepository productRepository;
 
-    public Product createProduct (Product product){
+    public Product createProduct(Product product) {
         return productRepository.save(product);
     }
-    public List<Product> getAllProducts(){
+
+    public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
-    public Optional<Product> getProductById(Long id){
+
+    public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
-    public Product updateProduct(Long id, Product productDetail){
-        Product product = productRepository.findById(id).orElseThrow();
-        product.setName(productDetail.getName());
-        product.setDescription(productDetail.getDescription());
-        product.setPrice(productDetail.getPrice());
-        product.setStock(productDetail.getStock());
-        return productRepository.save(product);
 
+    public Product updateProduct(Long id, Product productDetails) {
+        return productRepository.findById(id).map(product -> {
+            product.setName(productDetails.getName());
+            product.setDescription(productDetails.getDescription());
+            product.setPrice(productDetails.getPrice());
+            product.setStock(productDetails.getStock());
+            return productRepository.save(product);
+        }).orElseThrow(() -> new RuntimeException("Product not found with id " + id));
     }
-    public void deleteProduct (Long id){
-        productRepository.deleteById(id);
+
+    public boolean deleteProduct(Long id) {
+        Optional<Product> product = productRepository.findById(id);
+        if (product.isPresent()) {
+            productRepository.delete(product.get());
+            return true;
+        } else {
+            return false;
+        }
     }
 }
