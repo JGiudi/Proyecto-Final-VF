@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +36,6 @@ public class Cart {
             inverseJoinColumns = @JoinColumn(name = "product_id")
     )
     @Schema(description = "List of products in the cart")
-    @ArraySchema(arraySchema = @Schema(description = "List of products"))
     @Getter @Setter
     private List<Product> products = new ArrayList<>();
 
@@ -43,11 +43,15 @@ public class Cart {
     @CollectionTable(name = "cart_quantities", joinColumns = @JoinColumn(name = "cart_id"))
     @Column(name = "quantity")
     @Schema(description = "Quantities of each product in the cart")
-    @ArraySchema(arraySchema = @Schema(description = "List of quantities"))
     @Getter @Setter
     private List<Integer> quantities = new ArrayList<>();
 
     @Schema(description = "Indicates whether the cart has been delivered", example = "false")
     @Getter @Setter
     private boolean delivered;
+
+    @Column(name = "created_at")
+    @Schema(description = "Creation date of the cart")
+    @Getter @Setter
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

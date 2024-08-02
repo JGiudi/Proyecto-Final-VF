@@ -25,8 +25,7 @@ public class CartController {
     @Operation(summary = "Create one cart", description = "You need to pass an object with the data for the cart, customer, product, and quantity, and it returns the cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cart created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Cart or product not found")
     })
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable("clientId") Long clientId,
@@ -36,9 +35,9 @@ public class CartController {
             Cart cart = cartService.addProductToCart(clientId, productId, quantity);
             return ResponseEntity.ok(cart);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -46,14 +45,14 @@ public class CartController {
     @Operation(summary = "Get all carts", description = "This returns all carts")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Carts retrieved successfully"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Carts not found")
     })
     public ResponseEntity<List<Cart>> getAllCarts() {
         try {
             List<Cart> carts = cartService.getAllCarts();
-            return ResponseEntity.ok(carts);
+            return carts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(carts);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -61,15 +60,14 @@ public class CartController {
     @Operation(summary = "Get one cart by ID", description = "You need to pass the ID, and it will return the cart with that ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cart retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Cart not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Cart not found")
     })
     public ResponseEntity<Cart> getCartById(@PathVariable("id") Long id) {
         try {
             Optional<Cart> cart = cartService.getCartById(id);
             return cart.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -77,9 +75,7 @@ public class CartController {
     @Operation(summary = "Update cart", description = "You need to pass an object with the data for the cart, product, and quantity, and it returns the cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Cart updated successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid input data"),
-            @ApiResponse(responseCode = "404", description = "Cart not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Cart not found")
     })
     public ResponseEntity<Cart> updateCart(@PathVariable("id") Long id, @RequestBody Cart cartDetails) {
         try {
@@ -91,9 +87,9 @@ public class CartController {
                 return ResponseEntity.notFound().build();
             }
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -101,8 +97,7 @@ public class CartController {
     @Operation(summary = "Delete product from cart", description = "You need to pass the ID to delete the product from the cart")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product removed from cart successfully"),
-            @ApiResponse(responseCode = "404", description = "Cart or product not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Cart or product not found")
     })
     public ResponseEntity<Void> removeProductFromCart(@PathVariable("id") Long id, @PathVariable("productId") Long productId) {
         try {
@@ -114,7 +109,7 @@ public class CartController {
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -122,19 +117,15 @@ public class CartController {
     @Operation(summary = "Get cart by client ID", description = "You need to pass the clientId, and it will return an object for that clientId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Carts retrieved successfully"),
-            @ApiResponse(responseCode = "404", description = "Client not found"),
-            @ApiResponse(responseCode = "500", description = "Internal server error")
+            @ApiResponse(responseCode = "404", description = "Client not found or no carts found")
     })
     public ResponseEntity<List<Cart>> getCartsByClientId(@PathVariable("clientId") Long clientId) {
         try {
             List<Cart> carts = cartService.getCartsByClientId(clientId);
-            if (!carts.isEmpty()) {
-                return ResponseEntity.ok(carts);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
+            return carts.isEmpty() ? ResponseEntity.notFound().build() : ResponseEntity.ok(carts);
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
+            return ResponseEntity.notFound().build();
         }
     }
 }
+

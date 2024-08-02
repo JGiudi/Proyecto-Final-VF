@@ -24,8 +24,10 @@ public class CartService {
     private ProductRepository productRepository;
 
     public Cart addProductToCart(Long clientId, Long productId, Integer quantity) {
-        Client client = clientRepository.findById(clientId).orElseThrow();
-        Product product = productRepository.findById(productId).orElseThrow();
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         List<Cart> carts = cartRepository.findByClientAndDeliveredFalse(client);
         Cart cart;
@@ -51,15 +53,18 @@ public class CartService {
     }
 
     public Cart updateCart(Long id, Cart cartDetails) {
-        Cart cart = cartRepository.findById(id).orElseThrow();
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
         cart.setProducts(cartDetails.getProducts());
         cart.setQuantities(cartDetails.getQuantities());
         return cartRepository.save(cart);
     }
 
     public void removeProductFromCart(Long id, Long productId) {
-        Cart cart = cartRepository.findById(id).orElseThrow();
-        Product product = productRepository.findById(productId).orElseThrow();
+        Cart cart = cartRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cart not found"));
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
         int index = cart.getProducts().indexOf(product);
         if (index != -1) {
@@ -71,7 +76,8 @@ public class CartService {
     }
 
     public List<Cart> getCartsByClientId(Long clientId) {
-        Client client = clientRepository.findById(clientId).orElseThrow();
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
         return cartRepository.findByClientAndDeliveredFalse(client);
     }
 }

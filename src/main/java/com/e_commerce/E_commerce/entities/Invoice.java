@@ -4,8 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -43,8 +42,8 @@ public class Invoice {
     @Getter @Setter
     private boolean delivered;
 
-    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "created_at")
     @Schema(description = "Creation date of the invoice")
     @Getter @Setter
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }
